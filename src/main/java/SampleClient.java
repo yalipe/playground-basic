@@ -2,7 +2,6 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.interceptor.LoggingInterceptor;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Patient;
 
 public class SampleClient {
 
@@ -13,15 +12,12 @@ public class SampleClient {
         IGenericClient client = fhirContext.newRestfulGenericClient("http://hapi.fhir.org/baseR4");
         client.registerInterceptor(new LoggingInterceptor(false));
 
-        // Search for Patient resources
-        Bundle response = client
-                .search()
-                .forResource("Patient")
-                .where(Patient.FAMILY.matches().value("SMITH"))
-                .returnBundle(Bundle.class)
-                .execute();
-
-
+        PatientService patientService = new PatientService();
+        Bundle response = patientService.findPatientsByFamilyName(client, "SMITH", false);
+        // Task 1
+        patientService.printSortedPatientNames(response.getEntry());
+        // Task 2
+        patientService.printAveragePatientLoadingTime(client);
     }
 
 }
