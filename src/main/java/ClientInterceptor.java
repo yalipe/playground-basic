@@ -15,7 +15,7 @@ public class ClientInterceptor implements IClientInterceptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientInterceptor.class);
 
-    long responseTime = 0;
+    private long responseTime = 0;
 
     @Hook(Pointcut.CLIENT_REQUEST)
     public void interceptRequest(IHttpRequest iHttpRequest) {
