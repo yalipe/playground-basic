@@ -67,7 +67,20 @@ public class PatientService {
         }
     }
 
-    public List<String> loadNamesFromFile(String fileName) {
+    public Bundle findPatientsByFamilyName(IGenericClient client, String familyName, boolean noCache) {
+        Bundle response = client
+                .search()
+                .forResource("Patient")
+                .where(Patient.FAMILY.matches().value(familyName))
+                .returnBundle(Bundle.class)
+                .cacheControl(new CacheControlDirective().setNoCache(noCache))
+                .execute();
+
+        LOG.debug("Found {} patients with family name '{}'", response.getEntry().size(), familyName);
+        return response;
+    }
+
+    protected List<String> loadNamesFromFile(String fileName) {
         List<String> names = new ArrayList<>();
         try {
             byte[] bytes = Files.readAllBytes(Paths.get(Objects.requireNonNull(PatientService.class.getResource(fileName)).toURI()));
@@ -82,18 +95,5 @@ public class PatientService {
             throw new RuntimeException(e);
         }
         return names;
-    }
-
-    public Bundle findPatientsByFamilyName(IGenericClient client, String familyName, boolean noCache) {
-        Bundle response = client
-                .search()
-                .forResource("Patient")
-                .where(Patient.FAMILY.matches().value(familyName))
-                .returnBundle(Bundle.class)
-                .cacheControl(new CacheControlDirective().setNoCache(noCache))
-                .execute();
-
-        LOG.debug("Found {} patients with family name '{}'", response.getEntry().size(), familyName);
-        return response;
     }
 }
